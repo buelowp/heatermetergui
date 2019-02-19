@@ -35,6 +35,7 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     m_rest = new RestAPI(host, this);
     m_rest->run();
     
+    
     connect(m_rest, SIGNAL(statusUpdate(QString, double)), this, SLOT(statusUpdate(QString, double)));
     connect(m_rest, SIGNAL(apiVersion(int)), this, SLOT(apiVersion(int)));
     connect(m_rest, SIGNAL(firmwareVersion(QString&)), this, SLOT(firmwareVersion(QString&)));
@@ -57,7 +58,6 @@ void HeaterMeter::apiVersion(int version)
 void HeaterMeter::firmwareVersion(QString &version)
 {
     qDebug() << __PRETTY_FUNCTION__ << ": Firmware version is" << version;
-    m_rest->getConfig();
 }
 
 void HeaterMeter::statusUpdate(QString name, double val)
@@ -73,7 +73,12 @@ void HeaterMeter::statusUpdate(QString name, double val)
         htv = m_highTriggerValue[name];
     
     if (num) {
-        num->display(val);
+        LineSeries *ls = m_series[name];
+        if (ls) {
+            ls->enqueue(val);
+        }
+        QString v = QString("%1").arg(val, 3, 'f', 1);
+        num->display(v);
         if (ltv > 0 && val <= ltv) {
             num->setPalette(Qt::blue);
         }
@@ -106,9 +111,10 @@ void HeaterMeter::probe(int which, QString name)
     qDebug() << __PRETTY_FUNCTION__ << "Probe" << which << ":" << name;
     QLabel *n = new QLabel(this);
     QLCDNumber *v = new QLCDNumber(this);
+    LineSeries *ls = new LineSeries(width(), name);
     n->setText(name);
     n->setAlignment(Qt::AlignCenter);
-    v->setDigitCount(4);
+    v->setDigitCount(5);
     v->setSegmentStyle(QLCDNumber::Flat);
     v->display(0.0);
     v->setPalette(Qt::red);
@@ -116,6 +122,7 @@ void HeaterMeter::probe(int which, QString name)
     m_layout->addWidget(v, 1, which - 1);
     m_probeNames[name] = n;
     m_probeValues[name] = v;
+    m_series[name] = ls;
 }
 
 void HeaterMeter::getConfig()

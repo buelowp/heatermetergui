@@ -14,6 +14,8 @@ set(heatermeter_SRC
   src/main.cpp
   src/heatermeter.cpp
   src/restapi.cpp
+  src/lineseries.cpp
+  src/tempgraph.cpp
 )
 
 # Tell CMake to create the helloworld executable

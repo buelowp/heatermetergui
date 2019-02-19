@@ -1,6 +1,6 @@
 /**
  * HeaterMeter
- * restapi.h
+ * tempgraph.h
  * Copyright Peter Buelow (goballstate@gmail.com)
  * 
  * MIT License
@@ -26,61 +26,32 @@
  * SOFTWARE.
  */
 
-
-
-#ifndef RESTAPI_H
-#define RESTAPI_H
+#ifndef TEMPGRAPH_H
+#define TEMPGRAPH_H
 
 #include <QtCore/QtCore>
-#include <QtNetwork/QtNetwork>
-
-#define RA_VERSION  0
-#define RA_STATUS   1
-#define RA_CONFIG   2
-
-#define RA_PROBE1   1
-#define RA_PROBE2   2
-#define RA_PROBE3   3
-
+#include <QtWidgets/QtWidgets>
+#include "lineseries.h"
 /**
  * @todo write docs
  */
-class RestAPI : public QObject
+class TempGraph : public QWidget
 {
     Q_OBJECT
 public:
-    RestAPI(QString, QObject *parent = 0);
-    ~RestAPI();
+    TempGraph(QWidget *parent = 0);
+    ~TempGraph();
     
-    void getVersion();
-    void getConfig();
-    void run();
-
+    void addLineSeries(QString, LineSeries*);
+    
+protected:
+    void showEvent(QShowEvent*);
+    
 public slots:
-    void commandFinished(QNetworkReply*);
-    void timeout();
-    
-signals:
-    void statusUpdate(QString, double);
-    void probeFound(int, QString);
-    void apiVersion(int);
-    void firmwareVersion(QString&);
-    void lowTrigger(QString, int);
-    void highTrigger(QString, int);
-    
+    void graphUpdate();
+
 private:
-    void decodeVersion(QJsonObject);
-    void decodeConfig(QJsonObject);
-    void decodeStatus(QJsonObject);
-    bool spinLock();
-    
-    QNetworkAccessManager *m_manager;
-    QString m_version;
-    QMutex m_mutex;
-    QTimer *m_update;
-    QString m_host;
-    int m_apiVersion;
-    int m_which;
+    QMap<QString, LineSeries*> m_lines;
 };
 
-#endif // RESTAPI_H
+#endif // TEMPGRAPH_H

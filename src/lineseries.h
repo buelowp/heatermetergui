@@ -1,6 +1,6 @@
 /**
  * HeaterMeter
- * restapi.h
+ * lineseries.h
  * Copyright Peter Buelow (goballstate@gmail.com)
  * 
  * MIT License
@@ -26,61 +26,42 @@
  * SOFTWARE.
  */
 
-
-
-#ifndef RESTAPI_H
-#define RESTAPI_H
+#ifndef LINESERIES_H
+#define LINESERIES_H
 
 #include <QtCore/QtCore>
-#include <QtNetwork/QtNetwork>
-
-#define RA_VERSION  0
-#define RA_STATUS   1
-#define RA_CONFIG   2
-
-#define RA_PROBE1   1
-#define RA_PROBE2   2
-#define RA_PROBE3   3
+#include <QtWidgets/QtWidgets>
 
 /**
  * @todo write docs
  */
-class RestAPI : public QObject
+class LineSeries : public QObject
 {
     Q_OBJECT
 public:
-    RestAPI(QString, QObject *parent = 0);
-    ~RestAPI();
+    LineSeries(int, QString, QObject *parent = 0);
+    ~LineSeries();
     
-    void getVersion();
-    void getConfig();
-    void run();
+    void enqueue(QPoint);
+    void enqueue(int, int);
+    void enqueue(int);
+    void dequeue();
+    int size() { return m_queue.size(); }
+    QPoint next();
+    bool hasNext();
+    void resetIterator() { m_iterator = 0; }
+    QString whoAmI() { return m_name; }
+    void setWidth(int w);
 
-public slots:
-    void commandFinished(QNetworkReply*);
-    void timeout();
-    
 signals:
-    void statusUpdate(QString, double);
-    void probeFound(int, QString);
-    void apiVersion(int);
-    void firmwareVersion(QString&);
-    void lowTrigger(QString, int);
-    void highTrigger(QString, int);
+    void update(QString);
     
 private:
-    void decodeVersion(QJsonObject);
-    void decodeConfig(QJsonObject);
-    void decodeStatus(QJsonObject);
-    bool spinLock();
-    
-    QNetworkAccessManager *m_manager;
-    QString m_version;
-    QMutex m_mutex;
-    QTimer *m_update;
-    QString m_host;
-    int m_apiVersion;
-    int m_which;
+    QQueue<int> m_queue;
+    QString m_name;
+    int m_index;
+    int m_iterator;
+    int m_width;
 };
 
-#endif // RESTAPI_H
+#endif // LINESERIES_H

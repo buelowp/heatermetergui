@@ -31,7 +31,9 @@
 
 #include <QtCore/QtCore>
 #include <QtWidgets/QtWidgets>
+#include <QtCharts/QtCharts>
 #include "restapi.h"
+#include "lineseries.h"
 
 class HeaterMeter : public QWidget
 {
@@ -58,6 +60,7 @@ private:
     QMap<QString, QLCDNumber*> m_probeValues;
     QMap<QString, int> m_lowTriggerValue;
     QMap<QString, int> m_highTriggerValue;
+    QMap<QString, LineSeries*> m_series;
     QGridLayout *m_layout;
     QString m_host;
 };

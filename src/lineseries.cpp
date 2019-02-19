@@ -1,6 +1,6 @@
 /**
  * HeaterMeter
- * restapi.h
+ * lineseries.cpp
  * Copyright Peter Buelow (goballstate@gmail.com)
  * 
  * MIT License
@@ -26,61 +26,65 @@
  * SOFTWARE.
  */
 
+#include "lineseries.h"
 
-
-#ifndef RESTAPI_H
-#define RESTAPI_H
-
-#include <QtCore/QtCore>
-#include <QtNetwork/QtNetwork>
-
-#define RA_VERSION  0
-#define RA_STATUS   1
-#define RA_CONFIG   2
-
-#define RA_PROBE1   1
-#define RA_PROBE2   2
-#define RA_PROBE3   3
-
-/**
- * @todo write docs
- */
-class RestAPI : public QObject
+LineSeries::LineSeries(int width, QString name, QObject *parent) : QObject(parent), m_width(width), m_name(name)
 {
-    Q_OBJECT
-public:
-    RestAPI(QString, QObject *parent = 0);
-    ~RestAPI();
-    
-    void getVersion();
-    void getConfig();
-    void run();
+    m_index = 0;
+    m_iterator = 0;
+}
 
-public slots:
-    void commandFinished(QNetworkReply*);
-    void timeout();
-    
-signals:
-    void statusUpdate(QString, double);
-    void probeFound(int, QString);
-    void apiVersion(int);
-    void firmwareVersion(QString&);
-    void lowTrigger(QString, int);
-    void highTrigger(QString, int);
-    
-private:
-    void decodeVersion(QJsonObject);
-    void decodeConfig(QJsonObject);
-    void decodeStatus(QJsonObject);
-    bool spinLock();
-    
-    QNetworkAccessManager *m_manager;
-    QString m_version;
-    QMutex m_mutex;
-    QTimer *m_update;
-    QString m_host;
-    int m_apiVersion;
-    int m_which;
-};
+LineSeries::~LineSeries()
+{
+}
 
-#endif // RESTAPI_H
+bool LineSeries::hasNext()
+{
+    if (m_iterator < m_queue.size())
+        return true;
+
+    return false;
+}
+
+void LineSeries::enqueue(QPoint p)
+{
+    if (m_queue.size() >= m_width)
+        m_queue.dequeue();
+
+    m_queue.insert(p.x(), p.y());
+    emit update(m_name);
+}
+
+void LineSeries::enqueue(int x, int y)
+{
+    if (m_queue.size() >= m_width)
+        m_queue.dequeue();
+
+    m_queue.insert(x, y);
+    emit update(m_name);
+}
+
+void LineSeries::enqueue(int y)
+{
+    if (m_queue.size() >= m_width)
+        m_queue.dequeue();
+
+    m_queue.enqueue(y);
+    emit update(m_name);
+}
+
+void LineSeries::dequeue()
+{
+    m_queue.dequeue();
+    emit update(m_name);
+}
+
+void LineSeries::setWidth(int w)
+{
+    qDebug() << __PRETTY_FUNCTION__ << ": resetting width to" << w;
+    if (m_width > w) {
+        for (int i = 0; i < (m_width - w); i++) {
+            m_queue.dequeue();
+        }
+    }
+}

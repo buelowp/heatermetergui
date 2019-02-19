@@ -44,16 +44,6 @@ RestAPI::~RestAPI()
     delete m_manager;
 }
 
-void RestAPI::timeout()
-{
-    QUrl url(QString("http://" + m_host + "/luci/lm/api/status"));
-    QNetworkRequest request(url);
-    
-    qDebug() << __PRETTY_FUNCTION__ << ": requesting from" << url.toString();
-    m_which = RA_STATUS;
-    m_manager->get(request);
-}
-
 void RestAPI::run()
 {
     m_update->setInterval(1000);
@@ -98,7 +88,7 @@ void RestAPI::decodeStatus(QJsonObject json)
                 QJsonObject a = o["a"].toObject();
                 int h = a["h"].toInt();
                 int l = a["l"].toInt();
-                
+
                 if (l > 0) {
                     emit lowTrigger(o["n"].toString(), l);
                 }
@@ -115,6 +105,12 @@ void RestAPI::commandFinished(QNetworkReply *reply)
     QJsonDocument rval; 
     QByteArray ba;
     QJsonParseError error;
+    QByteArray text = reply->rawHeader("content-type");
+    
+    if (text != "application/json") {
+        qWarning() << __PRETTY_FUNCTION__ << ": Got non JSON back from the server";
+        return;
+    }
     
     if (!reply->error()) {
         ba = reply->readAll();
@@ -132,10 +128,12 @@ void RestAPI::commandFinished(QNetworkReply *reply)
                 if (!rval.isEmpty()) {
                     decodeConfig(rval.object());
                 }
+                break;
             case RA_STATUS:
                 if (!rval.isEmpty()) {
                     decodeStatus(rval.object());
                 }
+                break;
             default:
                 qDebug() << __PRETTY_FUNCTION__ << ": which is unknown" << m_which;
         }
@@ -165,7 +163,6 @@ void RestAPI::getVersion()
     QUrl url(QString("http://" + m_host + "/luci/lm/api/version"));
     QNetworkRequest request(url);
     
-    qDebug() << __PRETTY_FUNCTION__ << ": requesting from" << url.toString();
     m_which = RA_VERSION;
     m_manager->get(request);
 }
@@ -178,7 +175,20 @@ void RestAPI::getConfig()
     QUrl url(QString("http://" + m_host + "/luci/lm/api/config"));
     QNetworkRequest request(url);
     
-    qDebug() << __PRETTY_FUNCTION__ << ": requesting from" << url.toString();
     m_which = RA_CONFIG;
     m_manager->get(request);
 }
+
+void RestAPI::timeout()
+{
+    /* If something else is going on, just skip this update */
+    if (!spinLock())
+        return;
+    
+    QUrl url(QString("http://" + m_host + "/luci/lm/api/status"));
+    QNetworkRequest request(url);
+    
+    m_which = RA_STATUS;
+    m_manager->get(request);
+}
+

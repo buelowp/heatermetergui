@@ -1,6 +1,6 @@
 /**
  * HeaterMeter
- * restapi.h
+ * tempgraph.cpp
  * Copyright Peter Buelow (goballstate@gmail.com)
  * 
  * MIT License
@@ -26,61 +26,34 @@
  * SOFTWARE.
  */
 
+#include "tempgraph.h"
 
-
-#ifndef RESTAPI_H
-#define RESTAPI_H
-
-#include <QtCore/QtCore>
-#include <QtNetwork/QtNetwork>
-
-#define RA_VERSION  0
-#define RA_STATUS   1
-#define RA_CONFIG   2
-
-#define RA_PROBE1   1
-#define RA_PROBE2   2
-#define RA_PROBE3   3
-
-/**
- * @todo write docs
- */
-class RestAPI : public QObject
+TempGraph::TempGraph(QWidget *parent) : QWidget(parent)
 {
-    Q_OBJECT
-public:
-    RestAPI(QString, QObject *parent = 0);
-    ~RestAPI();
-    
-    void getVersion();
-    void getConfig();
-    void run();
+}
 
-public slots:
-    void commandFinished(QNetworkReply*);
-    void timeout();
-    
-signals:
-    void statusUpdate(QString, double);
-    void probeFound(int, QString);
-    void apiVersion(int);
-    void firmwareVersion(QString&);
-    void lowTrigger(QString, int);
-    void highTrigger(QString, int);
-    
-private:
-    void decodeVersion(QJsonObject);
-    void decodeConfig(QJsonObject);
-    void decodeStatus(QJsonObject);
-    bool spinLock();
-    
-    QNetworkAccessManager *m_manager;
-    QString m_version;
-    QMutex m_mutex;
-    QTimer *m_update;
-    QString m_host;
-    int m_apiVersion;
-    int m_which;
-};
+TempGraph::~TempGraph()
+{
+}
 
-#endif // RESTAPI_H
+void TempGraph::addLineSeries(QString name, LineSeries *ls)
+{
+    m_lines[name] = ls;
+}
+
+void TempGraph::showEvent(QShowEvent*)
+{
+    QMapIterator<QString, LineSeries*> i(m_lines);
+    while (i.hasNext()) {
+        i.next();
+        LineSeries* ls = i.value();
+        ls->setWidth(width());
+    }
+    
+}
+
+void TempGraph::graphUpdate()
+{
+    repaint();
+}
+

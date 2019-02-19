@@ -38,30 +38,37 @@ enum CommandLineParseResult
     CommandLineHelpRequested
 };
 
-CommandLineParseResult parseCommandLine(QCommandLineParser &parser, QString *hostname, QString *errorMessage)
+CommandLineParseResult parseCommandLine(QCommandLineParser &parser, QString &hostname, QString *errorMessage)
 {
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
-    const QCommandLineOption hostNameOption(QStringList() << "h" << "hostname", "Hostname or IP of the HeaterMeter device.");
+    const QCommandLineOption hostNameOption(QStringList() << "d" << "destination", "Destination hostname or IP of the HeaterMeter device.", "hostname");
     parser.addOption(hostNameOption);
     const QCommandLineOption helpOption = parser.addHelpOption();
     const QCommandLineOption versionOption = parser.addVersionOption();
 
-    if (!parser.parse(QCoreApplication::arguments())) {
+    if (!parser.parse(QApplication::arguments())) {
         *errorMessage = parser.errorText();
         return CommandLineError;
     }
 
-    if (parser.isSet(versionOption))
+    if (parser.optionNames().size() < 1) {
+        return CommandLineError;
+    }
+    
+    if (parser.isSet(versionOption)) {
         return CommandLineVersionRequested;
+    }
 
-    if (parser.isSet(helpOption))
+    if (parser.isSet(helpOption)) {
         return CommandLineHelpRequested;
+    }
 
     if (!parser.isSet(hostNameOption)) {
         return CommandLineError;
     }
     else {
-        *hostname = parser.value(hostNameOption);
+        hostname = parser.value(hostNameOption);
+        qDebug() << __PRETTY_FUNCTION__ << ": Found hostname" << hostname;
     }
     return CommandLineOk;
 }
@@ -76,7 +83,7 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription(QCoreApplication::translate("HeaterMeter", "Provide GUI frontend for HeaterMeter"));
     QString errorMessage;
 
-    switch (parseCommandLine(parser, &hostname, &errorMessage)) {
+    switch (parseCommandLine(parser, hostname, &errorMessage)) {
     case CommandLineOk:
         break;
     case CommandLineError:
@@ -93,10 +100,12 @@ int main(int argc, char *argv[])
         Q_UNREACHABLE();
     }
 
+    qDebug() << __PRETTY_FUNCTION__ << ": Connecting to hostname" << hostname;
     HeaterMeter w(hostname);
 
     w.setGeometry(0,0, 800, 480);
     w.getVersion();
+    w.getConfig();
     w.show();
 
     return app.exec();
