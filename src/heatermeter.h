@@ -34,6 +34,7 @@
 #include <QtCharts/QtCharts>
 #include "restapi.h"
 #include "lineseries.h"
+#include "tempgraph.h"
 
 class HeaterMeter : public QWidget
 {
@@ -52,9 +53,11 @@ protected slots:
     void probe(int, QString);
     void lowTriggerValue(QString, int);
     void highTriggerValue(QString, int);
+    void configComplete();
     
 private:
     RestAPI *m_rest;
+    TempGraph *m_graph;
 
     QMap<QString, QLabel*> m_probeNames;
     QMap<QString, QLCDNumber*> m_probeValues;

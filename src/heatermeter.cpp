@@ -26,7 +26,6 @@
  * SOFTWARE.
  */
 
-
 #include "heatermeter.h"
 #include "ui_heatermeter.h"
 
@@ -34,7 +33,7 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
 {
     m_rest = new RestAPI(host, this);
     m_rest->run();
-    
+    m_graph = nullptr;
     
     connect(m_rest, SIGNAL(statusUpdate(QString, double)), this, SLOT(statusUpdate(QString, double)));
     connect(m_rest, SIGNAL(apiVersion(int)), this, SLOT(apiVersion(int)));
@@ -42,6 +41,7 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     connect(m_rest, SIGNAL(probeFound(int, QString)), this, SLOT(probe(int, QString)));
     connect(m_rest, SIGNAL(lowTrigger(QString, int)), this, SLOT(lowTriggerValue(QString, int)));
     connect(m_rest, SIGNAL(highTrigger(QString, int)), this, SLOT(highTriggerValue(QString, int)));
+    connect(m_rest, SIGNAL(configComplete()), this, SLOT(configComplete()));
     
     m_layout = new QGridLayout(this);
 }
@@ -130,4 +130,18 @@ void HeaterMeter::getConfig()
     m_rest->getConfig();
 }
 
+void HeaterMeter::configComplete()
+{
+    if (!m_graph) {
+        m_graph = new TempGraph((QWidget*)m_layout);
+
+        QMapIterator<QString, LineSeries*> i(m_series);
+        while (i.hasNext()) {
+            LineSeries *ls = i.value();
+            m_graph->addLineSeries(i.key(), ls);
+        }
+
+        m_layout->addWidget(m_graph, 2, 0, 1, 3);
+    }
+}
 

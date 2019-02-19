@@ -73,6 +73,7 @@ void RestAPI::decodeConfig(QJsonObject json)
     if (json.contains("pn3")) {
         emit probeFound(RA_PROBE3, json.value("pn3").toString());
     }
+    emit configComplete();
 }
 
 void RestAPI::decodeStatus(QJsonObject json)

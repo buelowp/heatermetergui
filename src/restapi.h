@@ -67,6 +67,7 @@ signals:
     void firmwareVersion(QString&);
     void lowTrigger(QString, int);
     void highTrigger(QString, int);
+    void configComplete();
     
 private:
     void decodeVersion(QJsonObject);
