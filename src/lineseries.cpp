@@ -38,6 +38,16 @@ LineSeries::~LineSeries()
 {
 }
 
+QPoint LineSeries::next()
+{
+    int y = m_queue[m_iterator];
+    int x = m_iterator;
+    
+    m_iterator++;
+    
+    return QPoint(x, y);
+}
+
 bool LineSeries::hasNext()
 {
     if (m_iterator < m_queue.size())
@@ -52,7 +62,7 @@ void LineSeries::enqueue(QPoint p)
         m_queue.dequeue();
 
     m_queue.insert(p.x(), p.y());
-    emit update(m_name);
+    emit update();
 }
 
 void LineSeries::enqueue(int x, int y)
@@ -61,7 +71,7 @@ void LineSeries::enqueue(int x, int y)
         m_queue.dequeue();
 
     m_queue.insert(x, y);
-    emit update(m_name);
+    emit update();
 }
 
 void LineSeries::enqueue(int y)
@@ -70,19 +80,18 @@ void LineSeries::enqueue(int y)
         m_queue.dequeue();
 
     m_queue.enqueue(y);
-    emit update(m_name);
+    emit update();
 }
 
 void LineSeries::dequeue()
 {
     m_queue.dequeue();
-    emit update(m_name);
+    emit update();
 }
 
 void LineSeries::setWidth(int w)
 {
-    qDebug() << __PRETTY_FUNCTION__ << ": resetting width to" << w;
-    if (m_width > w) {
+    if (m_width > w && m_queue.size()) {
         for (int i = 0; i < (m_width - w); i++) {
             m_queue.dequeue();
         }

@@ -46,12 +46,17 @@ public:
     
 protected:
     void showEvent(QShowEvent*);
-    
+    void paintEvent(QPaintEvent*);
+
 public slots:
     void graphUpdate();
 
 private:
+    QPoint normalize(QPoint, double, double);
+    
     QMap<QString, LineSeries*> m_lines;
+    int m_max;
+    int m_min;
 };
 
 #endif // TEMPGRAPH_H

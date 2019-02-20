@@ -108,7 +108,6 @@ void HeaterMeter::highTriggerValue(QString name, int val)
 
 void HeaterMeter::probe(int which, QString name)
 {
-    qDebug() << __PRETTY_FUNCTION__ << "Probe" << which << ":" << name;
     QLabel *n = new QLabel(this);
     QLCDNumber *v = new QLCDNumber(this);
     LineSeries *ls = new LineSeries(width(), name);
@@ -123,6 +122,7 @@ void HeaterMeter::probe(int which, QString name)
     m_probeNames[name] = n;
     m_probeValues[name] = v;
     m_series[name] = ls;
+    qDebug() << __PRETTY_FUNCTION__ << ": adding pointer to ls" << ls;
 }
 
 void HeaterMeter::getConfig()
@@ -133,10 +133,12 @@ void HeaterMeter::getConfig()
 void HeaterMeter::configComplete()
 {
     if (!m_graph) {
-        m_graph = new TempGraph((QWidget*)m_layout);
+        m_graph = new TempGraph();
 
+        qDebug() << __PRETTY_FUNCTION__ << ": m_series has" << m_series.count() << "entries";
         QMapIterator<QString, LineSeries*> i(m_series);
         while (i.hasNext()) {
+            i.next();
             LineSeries *ls = i.value();
             m_graph->addLineSeries(i.key(), ls);
         }

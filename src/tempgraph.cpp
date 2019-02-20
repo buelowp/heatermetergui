@@ -30,6 +30,14 @@
 
 TempGraph::TempGraph(QWidget *parent) : QWidget(parent)
 {
+    m_max = 100;
+    m_min = 0;
+    QPalette pal = palette();
+
+    // set black background
+    pal.setColor(QPalette::Background, Qt::white);
+    setAutoFillBackground(true);
+    setPalette(pal);
 }
 
 TempGraph::~TempGraph()
@@ -38,7 +46,13 @@ TempGraph::~TempGraph()
 
 void TempGraph::addLineSeries(QString name, LineSeries *ls)
 {
-    m_lines[name] = ls;
+    if (ls) {
+        m_lines[name] = ls;
+        connect(ls, SIGNAL(update()), this, SLOT(graphUpdate()));
+    }
+    else {
+        qWarning() << __PRETTY_FUNCTION__ << ": LineSeries pointer is NULL";
+    }
 }
 
 void TempGraph::showEvent(QShowEvent*)
@@ -49,7 +63,65 @@ void TempGraph::showEvent(QShowEvent*)
         LineSeries* ls = i.value();
         ls->setWidth(width());
     }
+}
+
+void TempGraph::paintEvent(QPaintEvent*)
+{
+    QPainter painter(this);
+    QColor color;
+    int which = 0;
+    int r;
+    int b;
+    int g;
     
+    QMapIterator<QString, LineSeries*> i(m_lines);
+    while (i.hasNext()) {
+        i.next();
+        LineSeries* ls = i.value();
+        ls->resetIterator();
+        switch (which) {
+            case 0:
+                r = 255;
+                b = 0;
+                g = 0;
+                which++;
+                break;
+            case 1:
+                r = 0;
+                b = 255;
+                g = 0;
+                which++;
+                break;
+            case 2:
+                r = 0;
+                b = 0;
+                g = 255;
+                which++;
+                break;
+            default:
+                r = 255;
+                b = 255;
+                g = 255;
+                break;
+        }
+                
+        color.setRgb(r, b, g);
+        painter.setPen(color);
+        while (ls->hasNext()) {
+            QPoint p = ls->next();
+            if (p.y() > 50)
+                painter.drawPoint(normalize(p, m_min, m_max));
+        }
+    }    
+}
+
+QPoint TempGraph::normalize(QPoint p, double min, double max)
+{
+    double a = 0;
+    double b = (double)height();
+    double normal = ((b - a) * ((p.y() - min) / (max - min))) + a;
+    qDebug() << __PRETTY_FUNCTION__ << ": normal y is" << normal;
+    return QPoint(p.x(), (int)normal);
 }
 
 void TempGraph::graphUpdate()

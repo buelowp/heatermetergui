@@ -54,7 +54,7 @@ public:
     void setWidth(int w);
 
 signals:
-    void update(QString);
+    void update();
     
 private:
     QQueue<int> m_queue;
