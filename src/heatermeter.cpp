@@ -108,7 +108,26 @@ void HeaterMeter::highTriggerValue(QString name, int val)
 
 void HeaterMeter::probe(int which, QString name)
 {
+    static int c = 0;
+    QPalette p;
+    
     QLabel *n = new QLabel(this);
+    switch (c) {
+        case 0:
+            p.setColor(QPalette::Foreground, Qt::red);
+            c++;
+            break;
+        case 1:
+            p.setColor(QPalette::Foreground, Qt::blue);
+            c++;
+            break;
+        case 2:
+            p.setColor(QPalette::Foreground, Qt::darkGreen);
+            c++;
+            break;
+
+    }
+    n->setPalette(p);
     QLCDNumber *v = new QLCDNumber(this);
     LineSeries *ls = new LineSeries(width(), name);
     n->setText(name);
@@ -122,7 +141,6 @@ void HeaterMeter::probe(int which, QString name)
     m_probeNames[name] = n;
     m_probeValues[name] = v;
     m_series[name] = ls;
-    qDebug() << __PRETTY_FUNCTION__ << ": adding pointer to ls" << ls;
 }
 
 void HeaterMeter::getConfig()

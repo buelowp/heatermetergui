@@ -28,8 +28,9 @@
 
 #include "lineseries.h"
 
-LineSeries::LineSeries(int width, QString name, QObject *parent) : QObject(parent), m_width(width), m_name(name)
+LineSeries::LineSeries(int width, QString name, QObject *parent) : QObject(parent), m_name(name)
 {
+    m_width = width * .8;
     m_index = 0;
     m_iterator = 0;
 }

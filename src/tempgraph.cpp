@@ -30,8 +30,8 @@
 
 TempGraph::TempGraph(QWidget *parent) : QWidget(parent)
 {
-    m_max = 100;
-    m_min = 0;
+    m_max = 450;
+    m_min = 50;
     QPalette pal = palette();
 
     // set black background
@@ -104,24 +104,29 @@ void TempGraph::paintEvent(QPaintEvent*)
                 g = 255;
                 break;
         }
-                
+
         color.setRgb(r, b, g);
         painter.setPen(color);
         while (ls->hasNext()) {
             QPoint p = ls->next();
-            if (p.y() > 50)
-                painter.drawPoint(normalize(p, m_min, m_max));
+            if (p.y() > 50) {
+                if (!ls->hasNext()) {
+                    painter.drawEllipse(normalize(p, m_min, m_max), 10, 10);
+                }
+                else {
+                    painter.drawPoint(normalize(p, m_min, m_max));
+                }
+            }
         }
-    }    
+    }
 }
 
 QPoint TempGraph::normalize(QPoint p, double min, double max)
 {
     double a = 0;
     double b = (double)height();
-    double normal = ((b - a) * ((p.y() - min) / (max - min))) + a;
-    qDebug() << __PRETTY_FUNCTION__ << ": normal y is" << normal;
-    return QPoint(p.x(), (int)normal);
+    double normal = ((b - a) * ((p.y() - min) / (max - min))) - a;
+    return QPoint(p.x(), (height() - (int)normal));
 }
 
 void TempGraph::graphUpdate()
