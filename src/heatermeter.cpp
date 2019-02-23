@@ -27,7 +27,6 @@
  */
 
 #include "heatermeter.h"
-#include "ui_heatermeter.h"
 
 HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_host(host)
 {
@@ -35,6 +34,15 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     m_rest->run();
     m_graph = nullptr;
     
+    m_layout = new QGridLayout(this);
+    
+    m_timer = new TimerLabel();
+    m_timer->setAttribute(Qt::WA_AcceptTouchEvents);
+    m_layout->addWidget(m_timer, 0, 0, 1, 2);
+    m_lidState = new QLabel();
+    m_layout->addWidget(m_lidState, 0, 2);
+    m_lidState->setText("Closed");
+
     connect(m_rest, SIGNAL(statusUpdate(QString, double)), this, SLOT(statusUpdate(QString, double)));
     connect(m_rest, SIGNAL(apiVersion(int)), this, SLOT(apiVersion(int)));
     connect(m_rest, SIGNAL(firmwareVersion(QString&)), this, SLOT(firmwareVersion(QString&)));
@@ -42,8 +50,6 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     connect(m_rest, SIGNAL(lowTrigger(QString, int)), this, SLOT(lowTriggerValue(QString, int)));
     connect(m_rest, SIGNAL(highTrigger(QString, int)), this, SLOT(highTriggerValue(QString, int)));
     connect(m_rest, SIGNAL(configComplete()), this, SLOT(configComplete()));
-    
-    m_layout = new QGridLayout(this);
 }
 
 HeaterMeter::~HeaterMeter()
@@ -136,8 +142,8 @@ void HeaterMeter::probe(int which, QString name)
     v->setSegmentStyle(QLCDNumber::Flat);
     v->display(0.0);
     v->setPalette(Qt::red);
-    m_layout->addWidget(n, 0, which - 1);
-    m_layout->addWidget(v, 1, which - 1);
+    m_layout->addWidget(n, 1, which - 1);
+    m_layout->addWidget(v, 2, which - 1);
     m_probeNames[name] = n;
     m_probeValues[name] = v;
     m_series[name] = ls;
@@ -161,7 +167,7 @@ void HeaterMeter::configComplete()
             m_graph->addLineSeries(i.key(), ls);
         }
 
-        m_layout->addWidget(m_graph, 2, 0, 1, 3);
+        m_layout->addWidget(m_graph, 3, 0, 1, 3);
     }
 }
 

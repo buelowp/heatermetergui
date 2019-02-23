@@ -69,6 +69,7 @@ void TempGraph::paintEvent(QPaintEvent*)
 {
     QPainter painter(this);
     QColor color;
+    QColor green(Qt::darkGreen);
     int which = 0;
     int r;
     int b;
@@ -93,9 +94,9 @@ void TempGraph::paintEvent(QPaintEvent*)
                 which++;
                 break;
             case 2:
-                r = 0;
-                b = 0;
-                g = 255;
+                r = green.red();
+                b = green.blue();
+                g = green.green();
                 which++;
                 break;
             default:
@@ -107,11 +108,12 @@ void TempGraph::paintEvent(QPaintEvent*)
 
         color.setRgb(r, b, g);
         painter.setPen(color);
+        painter.setBrush(Qt::SolidPattern);
         while (ls->hasNext()) {
             QPoint p = ls->next();
             if (p.y() > 50) {
                 if (!ls->hasNext()) {
-                    painter.drawEllipse(normalize(p, m_min, m_max), 10, 10);
+                    painter.drawEllipse(normalize(p, m_min, m_max), 5, 5);
                 }
                 else {
                     painter.drawPoint(normalize(p, m_min, m_max));
