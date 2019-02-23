@@ -104,7 +104,7 @@ int main(int argc, char *argv[])
     qDebug() << __PRETTY_FUNCTION__ << ": Connecting to hostname" << hostname;
     HeaterMeter w(hostname);
     
-    w.setGeometry(0,0, 800, 480);
+    w.showFullScreen();
     w.getVersion();
     w.getConfig();
     w.show();
