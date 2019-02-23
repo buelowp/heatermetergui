@@ -53,6 +53,13 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     connect(m_rest, SIGNAL(lowTrigger(QString, int)), this, SLOT(lowTriggerValue(QString, int)));
     connect(m_rest, SIGNAL(highTrigger(QString, int)), this, SLOT(highTriggerValue(QString, int)));
     connect(m_rest, SIGNAL(configComplete()), this, SLOT(configComplete()));
+    
+    QFont f("Roboto");
+    f.setPixelSize(30);
+    m_timer->setFont(f);
+    m_timer->setAlignment(Qt::AlignCenter);
+    m_lidState->setFont(f);
+    m_lidState->setAlignment(Qt::AlignCenter);
 }
 
 HeaterMeter::~HeaterMeter()
@@ -173,6 +180,5 @@ void HeaterMeter::configComplete()
 
         m_layout->addWidget(m_graph, 3, 0, 1, 3);
     }
-    qDebug() << __PRETTY_FUNCTION__ << ": timer height:" << m_timer->height();
 }
 
