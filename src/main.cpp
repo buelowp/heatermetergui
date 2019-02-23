@@ -78,6 +78,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QCoreApplication::setApplicationName("heatermeter");
     QCoreApplication::setApplicationVersion("0.1");
+    QApplication::setOverrideCursor(Qt::BlankCursor);
     QString hostname;
     QCommandLineParser parser;
     parser.setApplicationDescription(QCoreApplication::translate("HeaterMeter", "Provide GUI frontend for HeaterMeter"));
@@ -102,7 +103,7 @@ int main(int argc, char *argv[])
 
     qDebug() << __PRETTY_FUNCTION__ << ": Connecting to hostname" << hostname;
     HeaterMeter w(hostname);
-
+    
     w.setGeometry(0,0, 800, 480);
     w.getVersion();
     w.getConfig();
