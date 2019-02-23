@@ -31,7 +31,6 @@
 
 #include <QtCore/QtCore>
 #include <QtWidgets/QtWidgets>
-#include <QtCharts/QtCharts>
 #include "restapi.h"
 #include "lineseries.h"
 #include "tempgraph.h"
