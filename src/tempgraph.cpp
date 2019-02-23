@@ -113,7 +113,7 @@ void TempGraph::paintEvent(QPaintEvent*)
             QPoint p = ls->next();
             if (p.y() > 50) {
                 if (!ls->hasNext()) {
-                    painter.drawEllipse(normalize(p, m_min, m_max), 5, 5);
+                    painter.drawEllipse(normalize(p, m_min, m_max), 3, 3);
                 }
                 else {
                     painter.drawPoint(normalize(p, m_min, m_max));

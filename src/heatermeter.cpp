@@ -36,15 +36,17 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     
     m_layout = new QGridLayout(this);
     
-    m_timer = new QLabel();
-    m_timer->setAttribute(Qt::WA_AcceptTouchEvents);
-    m_timer->setMaximumHeight(50);
-    m_timer->setText("0:00:00");
-    m_layout->addWidget(m_timer, 0, 0, 1, 2);
+    m_timerButton = new QPushButton();
+    m_timerButton->setMaximumHeight(50);
+    m_timerButton->setText("0:00:00");
+    m_layout->addWidget(m_timerButton, 0, 0, 1, 2);
     m_lidState = new QLabel();
     m_layout->addWidget(m_lidState, 0, 2);
     m_lidState->setText("Closed");
     m_lidState->setMaximumHeight(50);
+    
+    m_timer = new QTimer(this);
+    m_timer->setInterval(1000);
 
     connect(m_rest, SIGNAL(statusUpdate(QString, double)), this, SLOT(statusUpdate(QString, double)));
     connect(m_rest, SIGNAL(apiVersion(int)), this, SLOT(apiVersion(int)));
@@ -53,17 +55,38 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     connect(m_rest, SIGNAL(lowTrigger(QString, int)), this, SLOT(lowTriggerValue(QString, int)));
     connect(m_rest, SIGNAL(highTrigger(QString, int)), this, SLOT(highTriggerValue(QString, int)));
     connect(m_rest, SIGNAL(configComplete()), this, SLOT(configComplete()));
+    connect(m_timerButton, SIGNAL(clicked()), this, SLOT(timerStateChange()));
+    connect(m_timer, SIGNAL(timeout()), this, SLOT(timeout()));
     
     QFont f("Roboto");
     f.setPixelSize(30);
-    m_timer->setFont(f);
-    m_timer->setAlignment(Qt::AlignCenter);
+    m_timerButton->setFont(f);
     m_lidState->setFont(f);
     m_lidState->setAlignment(Qt::AlignCenter);
+    m_timerValue.setHMS(0,0,0);
 }
 
 HeaterMeter::~HeaterMeter()
 {
+}
+
+void HeaterMeter::timeout()
+{
+    m_timerValue = m_timerValue.addSecs(1);
+    m_timerButton->setText(m_timerValue.toString("h:mm:ss"));
+}
+
+void HeaterMeter::timerStateChange()
+{
+    if (m_timer->isActive()) {
+        m_timer->stop();
+        m_timerValue.setHMS(0,0,0);
+    }
+    else {
+        m_timer->start();
+        m_timerValue.setHMS(0,0,0);
+        m_timerButton->setText(m_timerValue.toString("h:mm:ss"));
+    }
 }
 
 void HeaterMeter::apiVersion(int version)

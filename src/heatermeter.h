@@ -53,6 +53,8 @@ protected slots:
     void lowTriggerValue(QString, int);
     void highTriggerValue(QString, int);
     void configComplete();
+    void timerStateChange();
+    void timeout();
     
 private:
     RestAPI *m_rest;
@@ -65,8 +67,10 @@ private:
     QMap<QString, LineSeries*> m_series;
     QGridLayout *m_layout;
     QString m_host;
-    QLabel *m_timer;
+    QPushButton *m_timerButton;
     QLabel *m_lidState;
+    QTimer *m_timer;
+    QTime m_timerValue;
 };
 
 #endif // HEATERMETER_H
