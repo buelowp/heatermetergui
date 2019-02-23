@@ -42,7 +42,8 @@ public slots:
     void timeout();
     
 protected:
-    bool event(QEvent* e) override;
+    bool event(QEvent*) override;
+    void showEvent(QShowEvent*) override;
     
 private:
     QTime m_elapsed;

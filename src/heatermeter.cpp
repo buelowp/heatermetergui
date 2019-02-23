@@ -36,12 +36,15 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     
     m_layout = new QGridLayout(this);
     
-    m_timer = new TimerLabel();
+    m_timer = new QLabel();
     m_timer->setAttribute(Qt::WA_AcceptTouchEvents);
+    m_timer->setMaximumHeight(50);
+    m_timer->setText("0:00:00");
     m_layout->addWidget(m_timer, 0, 0, 1, 2);
     m_lidState = new QLabel();
     m_layout->addWidget(m_lidState, 0, 2);
     m_lidState->setText("Closed");
+    m_lidState->setMaximumHeight(50);
 
     connect(m_rest, SIGNAL(statusUpdate(QString, double)), this, SLOT(statusUpdate(QString, double)));
     connect(m_rest, SIGNAL(apiVersion(int)), this, SLOT(apiVersion(int)));
@@ -138,6 +141,7 @@ void HeaterMeter::probe(int which, QString name)
     LineSeries *ls = new LineSeries(width(), name);
     n->setText(name);
     n->setAlignment(Qt::AlignCenter);
+    n->setMaximumHeight(50);
     v->setDigitCount(5);
     v->setSegmentStyle(QLCDNumber::Flat);
     v->display(0.0);
@@ -169,5 +173,6 @@ void HeaterMeter::configComplete()
 
         m_layout->addWidget(m_graph, 3, 0, 1, 3);
     }
+    qDebug() << __PRETTY_FUNCTION__ << ": timer height:" << m_timer->height();
 }
 

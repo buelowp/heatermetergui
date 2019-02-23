@@ -28,7 +28,6 @@
 TimerLabel::TimerLabel(QLabel *parent) : QLabel(parent)
 {
     m_elapsed.setHMS(0, 0, 0);
-    setText(m_elapsed.toString("h:mm:ss"));
 
     m_timer = new QTimer();
     m_timer->setInterval(1000);
@@ -43,6 +42,12 @@ void TimerLabel::timeout()
 {
     m_elapsed = m_elapsed.addSecs(1);
     setText(m_elapsed.toString("h:mm:ss"));
+}
+
+void TimerLabel::showEvent(QShowEvent*)
+{
+    setText(m_elapsed.toString("h:mm:ss"));
+    qDebug() << __PRETTY_FUNCTION__ << ": height:" << height();
 }
 
 bool TimerLabel::event(QEvent* e)
@@ -69,7 +74,7 @@ bool TimerLabel::event(QEvent* e)
             e->setAccepted(true);
             break;
         case QEvent::MouseButtonPress:
-            qDebug() << __PRETTY_FUNCTION__ << ": Mouse Button Release";
+            qDebug() << __PRETTY_FUNCTION__ << ": Mouse Button Press";
             e->setAccepted(true);
             break;
         default:

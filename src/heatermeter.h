@@ -34,7 +34,6 @@
 #include "restapi.h"
 #include "lineseries.h"
 #include "tempgraph.h"
-#include "timerlabel.h"
 
 class HeaterMeter : public QWidget
 {
@@ -66,7 +65,7 @@ private:
     QMap<QString, LineSeries*> m_series;
     QGridLayout *m_layout;
     QString m_host;
-    TimerLabel *m_timer;
+    QLabel *m_timer;
     QLabel *m_lidState;
 };
 
