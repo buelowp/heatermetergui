@@ -115,7 +115,6 @@ void TempGraph::paintEvent(QPaintEvent*)
             int xoffset = width() * .1;
             int x = p.x() + xoffset;
             QPoint newp(x, p.y());
-            qDebug() << __PRETTY_FUNCTION__ << ": QPoint at" << newp;
             if (p.y() > m_min && p.y() < m_max) {
                 if (!ls->hasNext()) {
                     painter.drawEllipse(normalize(newp, m_min, m_max), 3, 3);
@@ -130,11 +129,13 @@ void TempGraph::paintEvent(QPaintEvent*)
     painter.setPen(Qt::black);
     QFont f = painter.font();
     f.setFamily("Roboto");
-    f.setPixelSize(25);
+    int size = height() / 10;
+    qDebug() << __PRETTY_FUNCTION__ << ": size:" << size;
+    f.setPixelSize(size);
     painter.setFont(f);
     painter.setBrush(Qt::SolidPattern);
-    painter.drawText(10, height() - 20, QString("%1").arg(m_min));
-    painter.drawText(10, 60, QString("%1").arg(m_max));
+    painter.drawText(10, (height() - (size / 2)), QString("%1").arg(m_min));
+    painter.drawText(10, size, QString("%1").arg(m_max));
 }
 
 QPoint TempGraph::normalize(QPoint p, double min, double max)
