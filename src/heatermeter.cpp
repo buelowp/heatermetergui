@@ -63,7 +63,7 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     m_timerButton->setFont(f);
     m_lidState->setFont(f);
     m_lidState->setAlignment(Qt::AlignCenter);
-    m_timerValue.setHMS(0,0,0);
+    m_timerValue = 0;
 }
 
 HeaterMeter::~HeaterMeter()
@@ -72,20 +72,24 @@ HeaterMeter::~HeaterMeter()
 
 void HeaterMeter::timeout()
 {
-    m_timerValue = m_timerValue.addSecs(1);
-    m_timerButton->setText(m_timerValue.toString("h:mm:ss"));
+    m_timerValue++;
+    int s = m_timerValue % 60;
+    int m = m_timerValue / 60;
+    int h = m / 60;
+    
+    QTime t(h, m, s);
+    m_timerButton->setText(t.toString("h:mm:ss"));
 }
 
 void HeaterMeter::timerStateChange()
 {
     if (m_timer->isActive()) {
         m_timer->stop();
-        m_timerValue.setHMS(0,0,0);
     }
     else {
         m_timer->start();
-        m_timerValue.setHMS(0,0,0);
-        m_timerButton->setText(m_timerValue.toString("h:mm:ss"));
+        m_timerValue = 0;
+        m_timerButton->setText("0:00:00");
     }
 }
 

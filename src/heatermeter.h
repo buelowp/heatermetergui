@@ -72,7 +72,7 @@ private:
     QPushButton *m_timerButton;
     QLabel *m_lidState;
     QTimer *m_timer;
-    QTime m_timerValue;
+    int m_timerValue;
     int m_minGraphTemp;
     int m_maxGraphTemp;
 };
