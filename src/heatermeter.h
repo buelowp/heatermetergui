@@ -44,6 +44,8 @@ public:
     ~HeaterMeter();
     void getVersion();
     void getConfig();
+    void setMinGraphTemp(int t) { m_minGraphTemp = t; }
+    void setMaxGraphTemp(int t) { m_maxGraphTemp = t; }
 
 protected slots:
     void apiVersion(int);
@@ -71,6 +73,8 @@ private:
     QLabel *m_lidState;
     QTimer *m_timer;
     QTime m_timerValue;
+    int m_minGraphTemp;
+    int m_maxGraphTemp;
 };
 
 #endif // HEATERMETER_H

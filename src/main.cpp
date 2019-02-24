@@ -30,6 +30,12 @@
 #include "heatermeter.h"
 #include <QApplication>
 
+struct CommandArguments {
+    QString hostName;
+    int minGraphTemp;
+    int maxGraphTemp;
+};
+
 enum CommandLineParseResult
 {
     CommandLineOk,
@@ -38,11 +44,15 @@ enum CommandLineParseResult
     CommandLineHelpRequested
 };
 
-CommandLineParseResult parseCommandLine(QCommandLineParser &parser, QString &hostname, QString *errorMessage)
+CommandLineParseResult parseCommandLine(QCommandLineParser &parser, struct CommandArguments *ca, QString *errorMessage)
 {
     parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
     const QCommandLineOption hostNameOption(QStringList() << "d" << "destination", "Destination hostname or IP of the HeaterMeter device.", "hostname");
     parser.addOption(hostNameOption);
+    const QCommandLineOption minimumOption(QStringList() << "n" << "min", "Minimum temp to show on the graph, default is 50", "min");
+    parser.addOption(minimumOption);
+    const QCommandLineOption maximumOption(QStringList() << "x" << "max", "Maximum temp to show on the graph, default is 400", "max");
+    parser.addOption(maximumOption);
     const QCommandLineOption helpOption = parser.addHelpOption();
     const QCommandLineOption versionOption = parser.addVersionOption();
 
@@ -64,11 +74,24 @@ CommandLineParseResult parseCommandLine(QCommandLineParser &parser, QString &hos
     }
 
     if (!parser.isSet(hostNameOption)) {
+        ca->hostName = "localhost";
         return CommandLineError;
     }
     else {
-        hostname = parser.value(hostNameOption);
-        qDebug() << __PRETTY_FUNCTION__ << ": Found hostname" << hostname;
+        ca->hostName = parser.value(hostNameOption);
+        qDebug() << __PRETTY_FUNCTION__ << ": Found hostname" << ca->hostName;
+    }
+    if (!parser.isSet(maximumOption)) {
+        ca->maxGraphTemp = 400;
+    }
+    else {
+        ca->maxGraphTemp = parser.value(maximumOption).toInt();
+    }
+    if (!parser.isSet(minimumOption)) {
+        ca->minGraphTemp = 50;
+    }
+    else {
+        ca->minGraphTemp = parser.value(minimumOption).toInt();
     }
     return CommandLineOk;
 }
@@ -79,12 +102,12 @@ int main(int argc, char *argv[])
     QCoreApplication::setApplicationName("heatermeter");
     QCoreApplication::setApplicationVersion("0.1");
     QApplication::setOverrideCursor(Qt::BlankCursor);
-    QString hostname;
     QCommandLineParser parser;
     parser.setApplicationDescription(QCoreApplication::translate("HeaterMeter", "Provide GUI frontend for HeaterMeter"));
     QString errorMessage;
+    struct CommandArguments ca;
 
-    switch (parseCommandLine(parser, hostname, &errorMessage)) {
+    switch (parseCommandLine(parser, &ca, &errorMessage)) {
     case CommandLineOk:
         break;
     case CommandLineError:
@@ -101,9 +124,16 @@ int main(int argc, char *argv[])
         Q_UNREACHABLE();
     }
 
-    qDebug() << __PRETTY_FUNCTION__ << ": Connecting to hostname" << hostname;
-    HeaterMeter w(hostname);
+    if (ca.hostName.size() == 0) {
+        qWarning() << __PRETTY_FUNCTION__ << ": Error, no hostname captured, exiting...";
+        exit(10);
+    }
     
+    qDebug() << __PRETTY_FUNCTION__ << ": Connecting to hostname" << ca.hostName;
+    HeaterMeter w(ca.hostName);
+    
+    w.setMinGraphTemp(ca.minGraphTemp);
+    w.setMaxGraphTemp(ca.maxGraphTemp);
     w.showFullScreen();
     w.getVersion();
     w.getConfig();

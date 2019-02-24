@@ -202,6 +202,8 @@ void HeaterMeter::configComplete()
         }
 
         m_layout->addWidget(m_graph, 3, 0, 1, 3);
+        m_graph->setMax(m_maxGraphTemp);
+        m_graph->setMin(m_minGraphTemp);
     }
 }
 

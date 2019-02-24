@@ -30,8 +30,9 @@
 
 TempGraph::TempGraph(QWidget *parent) : QWidget(parent)
 {
-    m_max = 450;
+    m_max = 400;
     m_min = 50;
+    m_firstPaint = true;
     QPalette pal = palette();
 
     // set black background
@@ -111,16 +112,28 @@ void TempGraph::paintEvent(QPaintEvent*)
         painter.setBrush(Qt::SolidPattern);
         while (ls->hasNext()) {
             QPoint p = ls->next();
-            if (p.y() > 50) {
+            int xoffset = width() * .1;
+            int x = p.x() + xoffset;
+            QPoint newp(x, p.y());
+            if (p.y() > m_min && p.y() < m_max) {
                 if (!ls->hasNext()) {
-                    painter.drawEllipse(normalize(p, m_min, m_max), 3, 3);
+                    painter.drawEllipse(normalize(newp, m_min, m_max), 3, 3);
                 }
                 else {
-                    painter.drawPoint(normalize(p, m_min, m_max));
+                    painter.drawPoint(normalize(newp, m_min, m_max));
                 }
             }
         }
     }
+    
+    painter.setPen(Qt::black);
+    QFont f = painter.font();
+    f.setFamily("Roboto");
+    f.setPixelSize(40);
+    painter.setFont(f);
+    painter.setBrush(Qt::SolidPattern);
+    painter.drawText(10, height() - 20, QString("%1").arg(m_min));
+    painter.drawText(10, 60, QString("%1").arg(m_max));
 }
 
 QPoint TempGraph::normalize(QPoint p, double min, double max)

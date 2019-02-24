@@ -43,6 +43,8 @@ public:
     ~TempGraph();
     
     void addLineSeries(QString, LineSeries*);
+    void setMin(int t) { m_min = t; }
+    void setMax(int t) { m_max = t; }
     
 protected:
     void showEvent(QShowEvent*);
@@ -57,6 +59,7 @@ private:
     QMap<QString, LineSeries*> m_lines;
     int m_max;
     int m_min;
+    bool m_firstPaint;
 };
 
 #endif // TEMPGRAPH_H
