@@ -85,8 +85,8 @@ void HeaterMeter::timeout()
 {
     m_timerValue++;
     int s = m_timerValue % 60;
-    int m = m_timerValue / 60;
-    int h = m / 60;
+    int m = (m_timerValue / 60) % 60;
+    int h = (m_timerValue / 3600) % 24;
     
     QTime t(h, m, s);
     if (!t.isValid()) {
