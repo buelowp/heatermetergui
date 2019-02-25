@@ -85,15 +85,15 @@ CommandLineParseResult parseCommandLine(QCommandLineParser &parser, struct Comma
         ca->maxGraphTemp = 400;
     }
     else {
-        qDebug() << __PRETTY_FUNCTION__ << ": setting graph maximum to" << ca->maxGraphTemp;
         ca->maxGraphTemp = parser.value(maximumOption).toInt();
+        qDebug() << __PRETTY_FUNCTION__ << ": setting graph maximum to" << ca->maxGraphTemp;
     }
     if (!parser.isSet(minimumOption)) {
         ca->minGraphTemp = 50;
     }
     else {
-        qDebug() << __PRETTY_FUNCTION__ << ": setting graph minimum to" << ca->minGraphTemp;
         ca->minGraphTemp = parser.value(minimumOption).toInt();
+        qDebug() << __PRETTY_FUNCTION__ << ": setting graph minimum to" << ca->minGraphTemp;
     }
     return CommandLineOk;
 }
