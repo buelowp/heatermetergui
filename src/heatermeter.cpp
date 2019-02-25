@@ -180,6 +180,7 @@ void HeaterMeter::probe(int which, QString name)
 
     }
     n->setPalette(p);
+    
     QLCDNumber *v = new QLCDNumber(this);
     LineSeries *ls = new LineSeries(width(), name);
     n->setText(name);
@@ -193,6 +194,10 @@ void HeaterMeter::probe(int which, QString name)
     m_probeNames[name] = n;
     m_probeValues[name] = v;
     m_series[name] = ls;
+    
+    QFont f = n->font();
+    f.setPixelSize(n->height() * 1.2);
+    n->setFont(f);
 }
 
 void HeaterMeter::getConfig()
