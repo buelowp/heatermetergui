@@ -78,7 +78,12 @@ void HeaterMeter::timeout()
     int h = m / 60;
     
     QTime t(h, m, s);
-    m_timerButton->setText(t.toString("h:mm:ss"));
+    if (!t.isValid()) {
+        qDebug() << __PRETTY_FUNCTION__ << ":" << h << ":" << m << ":" << s;
+    }
+    else {
+        m_timerButton->setText(t.toString("h:mm:ss"));
+    }
 }
 
 void HeaterMeter::timerStateChange()
