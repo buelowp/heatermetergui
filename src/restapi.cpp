@@ -78,6 +78,9 @@ void RestAPI::decodeConfig(QJsonObject json)
 
 void RestAPI::decodeStatus(QJsonObject json)
 {
+    if (json.contains("lid")) {
+        emit lidState(json.value("lid").toInt());
+    }
     if (json.contains("temps") && json["temps"].isArray()) {
         QJsonArray probe = json["temps"].toArray();
         for (int i = 0; i < probe.size(); ++i) {

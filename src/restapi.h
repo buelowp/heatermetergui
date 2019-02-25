@@ -68,6 +68,7 @@ signals:
     void lowTrigger(QString, int);
     void highTrigger(QString, int);
     void configComplete();
+    void lidState(int);
     
 private:
     void decodeVersion(QJsonObject);

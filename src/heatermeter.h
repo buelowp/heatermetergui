@@ -57,6 +57,7 @@ protected slots:
     void configComplete();
     void timerStateChange();
     void timeout();
+    void lidState(int);
     
 private:
     RestAPI *m_rest;

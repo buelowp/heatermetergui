@@ -54,6 +54,7 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     connect(m_rest, SIGNAL(probeFound(int, QString)), this, SLOT(probe(int, QString)));
     connect(m_rest, SIGNAL(lowTrigger(QString, int)), this, SLOT(lowTriggerValue(QString, int)));
     connect(m_rest, SIGNAL(highTrigger(QString, int)), this, SLOT(highTriggerValue(QString, int)));
+    connect(m_rest, SIGNAL(lidState(int)), this, SLOT(lidState(int)));
     connect(m_rest, SIGNAL(configComplete()), this, SLOT(configComplete()));
     connect(m_timerButton, SIGNAL(clicked()), this, SLOT(timerStateChange()));
     connect(m_timer, SIGNAL(timeout()), this, SLOT(timeout()));
@@ -68,6 +69,16 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
 
 HeaterMeter::~HeaterMeter()
 {
+}
+
+void HeaterMeter::lidState(int state)
+{
+    if (state == 0) {
+        m_lidState->setText("Closed");
+    }
+    else {
+        m_lidState->setText(QString("%1").arg(state));
+    }
 }
 
 void HeaterMeter::timeout()
