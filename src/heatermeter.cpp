@@ -108,7 +108,7 @@ void HeaterMeter::statusUpdate(QString name, double val)
     QLCDNumber *num = m_probeValues[name];
     int ltv = 0;
     int htv = 0;
-    
+        
     if (m_lowTriggerValue.size() > 0)
         ltv = m_lowTriggerValue[name];
 
@@ -116,21 +116,25 @@ void HeaterMeter::statusUpdate(QString name, double val)
         htv = m_highTriggerValue[name];
     
     if (num) {
+        QPalette p = num->palette();
         LineSeries *ls = m_series[name];
         if (ls) {
             ls->enqueue(val);
         }
-        QString v = QString("%1").arg(val, 3, 'f', 1);
-        num->display(v);
         if (ltv > 0 && val <= ltv) {
-            num->setPalette(Qt::blue);
+            p.setColor(p.WindowText, Qt::blue);
+            num->setPalette(p);
         }
-        else if (htv > 0 && val >= htv) {
-            num->setPalette(Qt::red);
+        else if (htv > 0 && val <= htv) {
+            p.setColor(p.WindowText, Qt::black);
+            num->setPalette(p);
         }
         else {
-            num->setPalette(Qt::white);
+            p.setColor(p.WindowText, Qt::red);
+            num->setPalette(p);
         }
+        QString v = QString("%1").arg(val, 3, 'f', 1);
+        num->display(v);
     }
 }
 
@@ -179,7 +183,6 @@ void HeaterMeter::probe(int which, QString name)
     v->setDigitCount(5);
     v->setSegmentStyle(QLCDNumber::Flat);
     v->display(0.0);
-    v->setPalette(Qt::red);
     m_layout->addWidget(n, 1, which - 1);
     m_layout->addWidget(v, 2, which - 1);
     m_probeNames[name] = n;

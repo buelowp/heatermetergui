@@ -129,13 +129,12 @@ void TempGraph::paintEvent(QPaintEvent*)
     painter.setPen(Qt::black);
     QFont f = painter.font();
     f.setFamily("Roboto");
-    int size = height() / 10;
-    qDebug() << __PRETTY_FUNCTION__ << ": size:" << size;
-    f.setPixelSize(size);
+    int fontSize = height() / 10;
+    f.setPixelSize(fontSize);
     painter.setFont(f);
     painter.setBrush(Qt::SolidPattern);
-    painter.drawText(10, (height() - (size / 2)), QString("%1").arg(m_min));
-    painter.drawText(10, size, QString("%1").arg(m_max));
+    painter.drawText(10, (height() - (fontSize / 2)), QString("%1").arg(m_min));
+    painter.drawText(10, fontSize, QString("%1").arg(m_max));
 }
 
 QPoint TempGraph::normalize(QPoint p, double min, double max)
