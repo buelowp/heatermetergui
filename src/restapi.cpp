@@ -117,7 +117,14 @@ void RestAPI::commandFinished(QNetworkReply *reply)
     }
     
     if (!reply->error()) {
-        ba = reply->readAll();
+        try {
+            ba = reply->readAll();
+        }
+        catch (std::bad_alloc &e) {
+            qWarning() << __PRETTY_FUNCTION__ << ": allocation exception:" << e.what();
+            reply->deleteLater();
+            return;
+        }
         rval = QJsonDocument::fromJson(ba, &error);
         switch (m_which) {
             case RA_VERSION:
@@ -145,6 +152,7 @@ void RestAPI::commandFinished(QNetworkReply *reply)
     else {
         qDebug() << __PRETTY_FUNCTION__ << ": Reply error";
     }
+    reply->deleteLater();
 }
 
 bool RestAPI::spinLock()
