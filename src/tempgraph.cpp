@@ -76,6 +76,16 @@ void TempGraph::paintEvent(QPaintEvent*)
     int b;
     int g;
     
+    painter.setPen(Qt::black);
+    QFont f = painter.font();
+    f.setFamily("Roboto");
+    int fontSize = height() / 10;
+    f.setPixelSize(fontSize);
+    painter.setFont(f);
+    painter.setBrush(Qt::SolidPattern);
+    painter.drawText(10, (height() - (fontSize / 2)), QString("%1").arg(m_min));
+    painter.drawText(10, fontSize, QString("%1").arg(m_max));
+
     QMapIterator<QString, LineSeries*> i(m_lines);
     while (i.hasNext()) {
         i.next();
@@ -125,16 +135,6 @@ void TempGraph::paintEvent(QPaintEvent*)
             }
         }
     }
-    
-    painter.setPen(Qt::black);
-    QFont f = painter.font();
-    f.setFamily("Roboto");
-    int fontSize = height() / 10;
-    f.setPixelSize(fontSize);
-    painter.setFont(f);
-    painter.setBrush(Qt::SolidPattern);
-    painter.drawText(10, (height() - (fontSize / 2)), QString("%1").arg(m_min));
-    painter.drawText(10, fontSize, QString("%1").arg(m_max));
 }
 
 QPoint TempGraph::normalize(QPoint p, double min, double max)
