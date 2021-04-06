@@ -50,6 +50,7 @@ public:
 protected:
     void resizeEvent(QResizeEvent *event);
     void moveEvent(QMoveEvent *event);
+    void closeEvent(QCloseEvent *event);
     
 protected slots:
     void apiVersion(int);
