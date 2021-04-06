@@ -47,6 +47,14 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     
     m_timer = new QTimer(this);
     m_timer->setInterval(1000);
+    
+    m_resizeEventTimer = new QTimer(this);
+    m_resizeEventTimer->setInterval(1000);
+    connect(m_resizeEventTimer, &QTimer::timeout, this, &HeaterMeter::setWindowLocation);
+    
+    m_moveEventTimer = new QTimer(this);
+    m_moveEventTimer->setInterval(1000);
+    connect(m_moveEventTimer, &QTimer::timeout, this, &HeaterMeter::setWindowLocation);
 
     connect(m_rest, SIGNAL(statusUpdate(QString, double)), this, SLOT(statusUpdate(QString, double)));
     connect(m_rest, SIGNAL(apiVersion(int)), this, SLOT(apiVersion(int)));
@@ -65,10 +73,46 @@ HeaterMeter::HeaterMeter(QString host, QWidget *parent) : QWidget(parent), m_hos
     m_lidState->setFont(f);
     m_lidState->setAlignment(Qt::AlignCenter);
     m_timerValue = 0;
+    
+    QSettings settings("heatermeter", "config");
+    bool ta = settings.value("timer", false).toBool();
+    if (ta) {
+        QTime dt = settings.value("timerstarted").toTime();
+        QTime now = QTime::currentTime();
+        qint64 elapsed = dt.secsTo(now);
+        m_timerValue = elapsed;
+        timerStateChange();
+    }
 }
 
 HeaterMeter::~HeaterMeter()
 {
+}
+
+void HeaterMeter::setWindowLocation()
+{
+    QSettings settings("heatermeter", "config");
+    settings.setValue("geometry", geometry());    
+}
+
+void HeaterMeter::moveEvent(QMoveEvent *event)
+{
+    Q_UNUSED(event)
+    
+    if (m_moveEventTimer->isActive()) 
+        m_moveEventTimer->stop();
+    
+    m_moveEventTimer->start();
+}
+
+void HeaterMeter::resizeEvent(QResizeEvent* event)
+{
+    Q_UNUSED(event)
+    
+    if (m_resizeEventTimer->isActive()) {
+        m_resizeEventTimer->stop();
+    }
+    m_resizeEventTimer->start();
 }
 
 void HeaterMeter::lidState(int state)
@@ -83,6 +127,9 @@ void HeaterMeter::lidState(int state)
 
 void HeaterMeter::timeout()
 {
+    QSettings settings("heatermeter", "config");
+    settings.setValue("lasttimerupdate", QTime::currentTime());
+    
     m_timerValue++;
     int s = m_timerValue % 60;
     int m = (m_timerValue / 60) % 60;
@@ -99,10 +146,15 @@ void HeaterMeter::timeout()
 
 void HeaterMeter::timerStateChange()
 {
+    QSettings settings("heatermeter", "config");
+
     if (m_timer->isActive()) {
+        settings.setValue("timer", false);
         m_timer->stop();
     }
     else {
+        settings.setValue("timer", true);
+        settings.setValue("timerstarted", QTime::currentTime());
         m_timer->start();
         m_timerValue = 0;
         m_timerButton->setText("0:00:00");

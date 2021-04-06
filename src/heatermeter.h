@@ -47,6 +47,10 @@ public:
     void setMinGraphTemp(int t) { m_minGraphTemp = t; }
     void setMaxGraphTemp(int t) { m_maxGraphTemp = t; }
 
+protected:
+    void resizeEvent(QResizeEvent *event);
+    void moveEvent(QMoveEvent *event);
+    
 protected slots:
     void apiVersion(int);
     void firmwareVersion(QString&);
@@ -60,6 +64,8 @@ protected slots:
     void lidState(int);
     
 private:
+    void setWindowLocation();
+    
     RestAPI *m_rest;
     TempGraph *m_graph;
 
@@ -73,7 +79,9 @@ private:
     QPushButton *m_timerButton;
     QLabel *m_lidState;
     QTimer *m_timer;
-    int m_timerValue;
+    QTimer *m_resizeEventTimer;
+    QTimer *m_moveEventTimer;
+    qint64 m_timerValue;
     int m_minGraphTemp;
     int m_maxGraphTemp;
 };

@@ -34,6 +34,7 @@ struct CommandArguments {
     QString hostName;
     int minGraphTemp;
     int maxGraphTemp;
+    bool fullScreen;
 };
 
 enum CommandLineParseResult
@@ -53,6 +54,8 @@ CommandLineParseResult parseCommandLine(QCommandLineParser &parser, struct Comma
     parser.addOption(minimumOption);
     const QCommandLineOption maximumOption(QStringList() << "x" << "max", "Maximum temp to show on the graph, default is 400", "max");
     parser.addOption(maximumOption);
+    const QCommandLineOption fullscreenOption(QStringList() << "f" << "fullscreen", "Show full screen");
+    parser.addOption(fullscreenOption);
     const QCommandLineOption helpOption = parser.addHelpOption();
     const QCommandLineOption versionOption = parser.addVersionOption();
 
@@ -95,6 +98,13 @@ CommandLineParseResult parseCommandLine(QCommandLineParser &parser, struct Comma
         ca->minGraphTemp = parser.value(minimumOption).toInt();
         qDebug() << __PRETTY_FUNCTION__ << ": setting graph minimum to" << ca->minGraphTemp;
     }
+    if (!parser.isSet(fullscreenOption)) {
+        ca->fullScreen = false;
+    }
+    else {
+        ca->fullScreen = true;
+    }
+        
     return CommandLineOk;
 }
 
@@ -103,11 +113,11 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
     QCoreApplication::setApplicationName("heatermeter");
     QCoreApplication::setApplicationVersion("0.1");
-    QApplication::setOverrideCursor(Qt::BlankCursor);
     QCommandLineParser parser;
     parser.setApplicationDescription(QCoreApplication::translate("HeaterMeter", "Provide GUI frontend for HeaterMeter"));
     QString errorMessage;
     struct CommandArguments ca;
+    QSettings settings("heatermeter", "config");
 
     switch (parseCommandLine(parser, &ca, &errorMessage)) {
     case CommandLineOk:
@@ -136,7 +146,15 @@ int main(int argc, char *argv[])
     
     w.setMinGraphTemp(ca.minGraphTemp);
     w.setMaxGraphTemp(ca.maxGraphTemp);
-    w.showFullScreen();
+    if (ca.fullScreen) {
+        w.showFullScreen();
+        QApplication::setOverrideCursor(Qt::BlankCursor);
+    }
+    else {
+        w.setGeometry(settings.value("geometry", QRect(100, 100, 800, 480)).toRect());
+        w.show();
+    }
+    
     w.getVersion();
     w.getConfig();
     w.show();
